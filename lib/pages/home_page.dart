@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:marvel_lati/helper/const.dart';
+import 'package:marvel_lati/pages/log_in_page.dart';
+import 'package:marvel_lati/providers/auth_provider.dart';
 import 'package:marvel_lati/providers/movie_provider.dart';
-import 'package:marvel_lati/widgets/moive_card.dart';
+import 'package:marvel_lati/widgets/movie_card_stack.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,8 +14,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
-
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -22,7 +21,56 @@ class _HomePageState extends State<HomePage> {
     return Consumer<MovieProvider>(builder: (context, movieConsumer, child) {
       return SafeArea(
         child: Scaffold(
-          drawer: Drawer(),
+          drawer: Drawer(
+            child: Column(
+              children: [
+                DrawerHeader(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                  ),
+                  child: Image.asset(
+                    "assets/image.png",
+                    width: size.width * 0.2,
+                  ),
+                ),
+                ListTile(
+                  title: const Text('Home'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('Profile'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('Settings'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('Logout'),
+                  onTap: () {
+                    Provider.of<AuthentProvider>(context, listen: false)
+                        .logout()
+                        .then((value) {
+                      if (value) {
+                        Navigator.pushAndRemoveUntil(context,
+                            MaterialPageRoute(builder: (context) {
+                          return LogInPage();
+                        }), (route) => false);
+                      } else {
+                        print("Logout failed");
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
           appBar: AppBar(
             actions: [
               SizedBox(
@@ -48,7 +96,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           body: Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(8),
             child: Column(
               children: [
                 Expanded(
@@ -56,12 +104,16 @@ class _HomePageState extends State<HomePage> {
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8),
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 0.7),
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: movieConsumer.movies.length,
                       itemBuilder: (context, index) {
-                        return MovieCard(movie: movieConsumer.movies[index]);
+                        return MovieCardStack(
+                            movie: movieConsumer.movies[index]);
+
+                        // MovieCard(movie: movieConsumer.movies[index]);
                       }),
                 ),
               ],
@@ -86,7 +138,6 @@ class IconApp extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: red.withOpacity(0.10)),
           ),
           child: IconButton(
             onPressed: () {
@@ -101,5 +152,25 @@ class IconApp extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class ScreenRouter extends StatefulWidget {
+  const ScreenRouter({super.key});
+
+  @override
+  State<ScreenRouter> createState() => _ScreenRouterState();
+}
+
+class _ScreenRouterState extends State<ScreenRouter> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthentProvider>(builder: (context, authConsumer, child) {
+      if (authConsumer.auth) {
+        return HomePage();
+      } else {
+        return LogInPage();
+      }
+    });
   }
 }

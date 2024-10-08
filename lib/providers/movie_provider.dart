@@ -1,25 +1,19 @@
 import 'dart:convert';
-
-import 'package:flutter/material.dart';
 import 'package:marvel_lati/models/movie_model.dart';
-import 'package:marvel_lati/services/api.dart';
+import 'package:marvel_lati/providers/baise_provider.dart';
 
-class MovieProvider with ChangeNotifier {
+class MovieProvider extends BaiseProvider {
   List<MovieModel> movies = [];
-  final Api _api = Api();
-  bool loading = false;
-
   getmoive() async {
-    loading = true;
+    setLoading(true);
     movies.clear();
-    var response = await _api.get("https://mcuapi.herokuapp.com/api/v1/movies");
+    var response = await api.get("https://mcuapi.herokuapp.com/api/v1/movies");
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body)['data'];
       for (var item in data) {
         movies.add(MovieModel.fromJson(item));
       }
-      loading = false;
-      notifyListeners();
+      setLoading(false);
     }
   }
 }

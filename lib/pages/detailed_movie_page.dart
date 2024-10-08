@@ -11,7 +11,7 @@ class DetailedMoviePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(movie.title),
+        title: Text(movie.title, style: const TextStyle(color: Colors.black)),
       ),
       body: SingleChildScrollView(
         child: Column(
