@@ -9,8 +9,10 @@ class BaiseProvider with ChangeNotifier {
   bool isFailed = false;
 
   void setLoading(bool value) {
-    loading = value;
-    notifyListeners();
+    Timer(Duration(milliseconds: 50), () {
+      loading = value;
+      notifyListeners();
+    });
   }
 
   setFailed(bool status) {

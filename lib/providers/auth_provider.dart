@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:marvel_lati/models/user_model.dart';
 import 'package:marvel_lati/providers/baise_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthentProvider extends BaiseProvider {
+  UserModel? userModel;
   bool auth = false;
   initilazAuthProvider() async {
     setLoading(true);
@@ -62,6 +64,37 @@ class AuthentProvider extends BaiseProvider {
       setFailed(true);
       setLoading(false);
       return false;
+    }
+  }
+
+  Future<List> updateProfile(UserModel body) async {
+    setLoading(true);
+    var response =
+        await api.put("https://lati.kudo.ly/api/users/update", body: body);
+    if (response.statusCode == 200) {
+      setLoading(false);
+      setFailed(false);
+      return [true, jsonDecode(response.body)];
+    } else {
+      setFailed(true);
+      setLoading(false);
+      return [false, jsonDecode(response.body)];
+    }
+  }
+
+  Future getUser() async {
+    setLoading(true);
+    var response = await api.get("https://lati.kudo.ly/api/user");
+    if (response.statusCode == 200) {
+      userModel = UserModel.fromJson(jsonDecode(response.body)['data']);
+      print(userModel!.toJson());
+      setLoading(false);
+      setFailed(false);
+      return userModel;
+    } else {
+      setFailed(true);
+      setLoading(false);
+      return jsonDecode(response.body);
     }
   }
 }

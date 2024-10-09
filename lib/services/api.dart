@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:marvel_lati/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Api {
@@ -45,12 +46,24 @@ class Api {
     return response;
   }
 
-  Future<http.Response> put(String url, Map body) async {
-    var response = await http.put(Uri.parse(url), body: json.encode(body));
+  Future<http.Response> put(String url, {UserModel? body = null}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("token");
+    final response = await http.put(
+        Uri.parse(
+          url,
+        ),
+        body: json.encode(body),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        });
     if (kDebugMode) {
-      print("PUT: $url");
-      print("Body: $body");
-      print("Response: ${response.body}");
+      print("PUT URL : $url");
+      print("PUT BODY : ${body}");
+      print("PUT STATUS CODE : ${response.statusCode}");
+      print("PUT RESPONSE : ${response.body}");
     }
     return response;
   }

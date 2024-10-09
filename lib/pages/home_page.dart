@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marvel_lati/pages/log_in_page.dart';
+import 'package:marvel_lati/pages/profile_page.dart';
 import 'package:marvel_lati/providers/auth_provider.dart';
 import 'package:marvel_lati/providers/movie_provider.dart';
 import 'package:marvel_lati/widgets/movie_card_stack.dart';
@@ -42,7 +43,10 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   title: const Text('Profile'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return ProfilePage();
+                    }));
                   },
                 ),
                 ListTile(

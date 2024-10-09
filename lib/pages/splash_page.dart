@@ -1,9 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:marvel_lati/helper/const.dart';
 import 'package:marvel_lati/pages/home_page.dart';
-import 'package:marvel_lati/pages/log_in_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});

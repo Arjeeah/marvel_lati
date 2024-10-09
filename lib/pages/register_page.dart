@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:marvel_lati/helper/const.dart';
@@ -203,6 +202,10 @@ class _RegisterPagesState extends State<RegisterPages> {
                             'password': _passwordController.text,
                           }).then((onValue) {
                             if (onValue.first) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(onValue.first.toString()),
+                              ));
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
@@ -213,6 +216,10 @@ class _RegisterPagesState extends State<RegisterPages> {
                                 content: Text(onValue.last),
                               ));
                             }
+                          }).catchError((onError) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(onError.toString()),
+                            ));
                           });
                         }
                       }),
