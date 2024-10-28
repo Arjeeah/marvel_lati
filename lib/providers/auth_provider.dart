@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:marvel_lati/models/user_model.dart';
 import 'package:marvel_lati/providers/baise_provider.dart';
@@ -13,6 +14,7 @@ class AuthentProvider extends BaiseProvider {
     String? token = prefs.getString('token');
     if (token != null) {
       auth = true;
+      api.refreshToken();
     }
     setLoading(false);
   }
@@ -96,5 +98,22 @@ class AuthentProvider extends BaiseProvider {
       setLoading(false);
       return jsonDecode(response.body);
     }
+  }
+
+  updateUserProfilePhoto(File file) {
+    setLoading(true);
+    api.upload(file, "https://lati.kudo.ly/api/uploader").then((value) {
+      if (value.statusCode == 200) {
+        setLoading(false);
+        setFailed(false);
+        UserModel? updateUserModelwithphoto = userModel;
+        updateUserModelwithphoto!.avatarUrl =
+            jsonDecode(value.body)['image_name'];
+      } else {
+        setFailed(true);
+        setLoading(false);
+        return jsonDecode(value.body);
+      }
+    });
   }
 }

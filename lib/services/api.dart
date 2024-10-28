@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:marvel_lati/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +17,13 @@ class Api {
     if (kDebugMode) {
       print("GET: $url");
       print("Response: ${response.body}");
+    }
+    if (response.statusCode == 401) {
+      refreshToken().then((onValue) {
+        if (onValue) {
+          get(url);
+        }
+      });
     }
     return response;
   }
@@ -43,6 +52,13 @@ class Api {
 
     print("TOKEN DOWN");
     print(response.headers);
+    if (response.statusCode == 401) {
+      refreshToken().then((onValue) {
+        if (onValue) {
+          post(url, body: body);
+        }
+      });
+    }
     return response;
   }
 
@@ -65,6 +81,13 @@ class Api {
       print("PUT STATUS CODE : ${response.statusCode}");
       print("PUT RESPONSE : ${response.body}");
     }
+    if (response.statusCode == 401) {
+      refreshToken().then((onValue) {
+        if (onValue) {
+          put(url, body: body);
+        }
+      });
+    }
     return response;
   }
 
@@ -76,4 +99,41 @@ class Api {
     }
     return response;
   }
+
+  Future<bool> refreshToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    print("old token  $token");
+
+    var response = await http.post(
+      Uri.parse("https://lati.kudo.ly/api/refresh"),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+    );
+
+    if (response.statusCode == 200) {
+      prefs.setString('token', jsonDecode(response.body)['access_token']);
+      print("new token  ${prefs.getString('token')}");
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future <Response> upload(File file, String url) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var request = http.MultipartRequest('POST', Uri.parse(url));
+    request.headers['Authorization'] = "Bearer $token";
+    request.files.add(await http.MultipartFile.fromPath('img', file.path));
+    http.StreamedResponse response = await request.send();
+    return http.Response.fromStream(response);
+  }
+  
+
+  
+
 }
